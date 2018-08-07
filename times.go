@@ -19,12 +19,14 @@ func SlowHandler(fn http.HandlerFunc, max time.Duration, cb func(r *http.Request
 	}
 }
 
-// TimeHandler wraps a http.HandlerFunc and calls cb with the duration.
-func TimeHandler(fn http.HandlerFunc, cb func(r *http.Request, t time.Duration)) http.HandlerFunc {
+// TimeHandler wraps a http.HandlerFunc and calls callbacks in cbs with the duration.
+func TimeHandler(fn http.HandlerFunc, cbs ...func(r *http.Request, t time.Duration)) http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
 		t0 := time.Now()
 		fn(w, req)
 		t := time.Since(t0)
-		cb(req, t)
+		for _, cb := range cbs {
+			cb(req, t)
+		}
 	}
 }
